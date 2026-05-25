@@ -16,7 +16,17 @@ export type TagVariant =
   | "php"
   | "mysql"
   | "vuelidate"
-  | "axios";
+  | "axios"
+  | "socketio"
+  | "chartjs"
+  | "primevue"
+  | "zod"
+  | "nestjs"
+  | "mongodb"
+  | "i18n"
+  | "pusher"
+  | "sass"
+  | "nuxtui";
 
 export const tagLabels = {
   vue: "Vue.js",
@@ -37,4 +47,14 @@ export const tagLabels = {
   mysql: "MySQL",
   vuelidate: "Vuelidate",
   axios: "Axios",
+  socketio: "Socket.IO",
+  chartjs: "Chart.js",
+  primevue: "PrimeVue",
+  zod: "Zod",
+  nestjs: "NestJS",
+  mongodb: "MongoDB",
+  i18n: "i18n",
+  pusher: "Pusher",
+  sass: "SASS",
+  nuxtui: "NuxtUI",
 } as const satisfies Record<TagVariant, string>;
