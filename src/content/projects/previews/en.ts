@@ -1,40 +1,40 @@
-import thumbnailExclusive from "../../../assets/thumbnails/exclusive.png";
-import thumbnailMvlib from "../../../assets/thumbnails/mvlib.png";
-import thumbnailMvlms from "../../../assets/thumbnails/mvlms.png";
-import thumbnailHidaaya from "../../../assets/thumbnails/hidaaya.png";
-import thumbnailKiiibs from "../../../assets/thumbnails/kiiibs.png";
+import thumbnailSaaf from "../../../assets/thumbnails/saaf.png";
+import thumbnailHazeclue from "../../../assets/thumbnails/hazeclue.png";
+import thumbnailSmartlearn from "../../../assets/thumbnails/smartlearn.png";
+import thumbnailNabeeh from "../../../assets/thumbnails/nabeeh.png";
+import thumbnailPortfolio from "../../../assets/thumbnails/portfolio.png";
 
 import type { ProjectPreview } from "../../types";
 
 export default [
   {
-    title: "Exclusive",
-    slug: "exclusive",
-    thumbnail: thumbnailExclusive,
-    description: "Full-Stack E-Commerce Platform",
+    title: "SAAF",
+    slug: "saaf",
+    thumbnail: thumbnailSaaf,
+    description: "Fintech Investment Platform",
   },
   {
-    title: "MVLib",
-    slug: "mvlib",
-    thumbnail: thumbnailMvlib,
-    description: "Library Management System",
+    title: "Haze Clue",
+    slug: "hazeclue",
+    thumbnail: thumbnailHazeclue,
+    description: "Real-time EEG Monitoring Platform",
   },
   {
-    title: "MV LMS",
-    slug: "mvlms",
-    thumbnail: thumbnailMvlms,
-    description: "Learning Management System",
+    title: "Smart Learn",
+    slug: "smartlearn",
+    thumbnail: thumbnailSmartlearn,
+    description: "Educational Platform (Freelance)",
   },
   {
-    title: "Hidaaya",
-    slug: "hidaaya",
-    thumbnail: thumbnailHidaaya,
-    description: "Responsive Islamic Website",
+    title: "Nabeeh",
+    slug: "nabeeh",
+    thumbnail: thumbnailNabeeh,
+    description: "Real-time Gaming Platform",
   },
   {
-    title: "KIIIBS",
-    slug: "kiiibs",
-    thumbnail: thumbnailKiiibs,
-    description: "Responsive Online Store",
+    title: "Personal Portfolio",
+    slug: "portfolio",
+    thumbnail: thumbnailPortfolio,
+    description: "Portfolio v2 with GSAP Animations",
   },
 ] as const satisfies ProjectPreview[];
