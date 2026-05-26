@@ -1,4 +1,4 @@
-# Portfolio (2025)
+# Ameen Mohamed Portfolio
 
 Personal portfolio site: project case studies, lightweight 3D and shader demos, bilingual copy (English and German).
 
@@ -27,7 +27,7 @@ Built with **Vue 3**, **TypeScript**, and **Vite**. Motion via **GSAP** and **Le
 
 ## Credits & Attribution
 
-This project was created and designed by David Heckhoff.
+This project was created and designed by Ameen Mohamed.
 
 If you use this project or substantial parts of its source code as a base for your own portfolio or work, attribution must be preserved.
 
@@ -38,6 +38,6 @@ Please keep:
 - a visible reference to the original project/repository in derivative works
 
 Original portfolio:
--> https://david-hckh.com
+-> https://github.com/ameenmv
 
 Commercial reuse or redistribution of substantial portions of this project without permission is prohibited.
