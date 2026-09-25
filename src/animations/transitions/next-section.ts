@@ -60,7 +60,7 @@ const setup = (section: HTMLElement) => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
-        start: "top top",
+        start: "top bottom",
         end: "bottom bottom",
         scrub: 1.5,
         onUpdate: (self) => {
