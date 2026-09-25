@@ -131,9 +131,9 @@ const setup = (section: HTMLElement) => {
       0,
     );
 
-    // ─── Phase 2 (0.40 → 0.45): Text fades out ───
+    // ─── Phase 2 (0.40 → 0.45): ONLY text fades out (SVG circle stays visible!) ───
     tl.to(
-      svg,
+      textPath.closest("text")!,
       {
         opacity: 0,
         duration: 0.05,
@@ -142,10 +142,10 @@ const setup = (section: HTMLElement) => {
       0.40,
     );
 
-    // ─── Phase 3 (0.52 → 0.85): Clip-path reveal expands from center ───
-    tl.fromTo(
+    // ─── Phase 3 (0.52): Set reveal clip-path starting point, then expand ───
+    tl.set(reveal, { clipPath: "circle(1% at 50% 55%)" }, 0.52);
+    tl.to(
       reveal,
-      { clipPath: "circle(1% at 50% 55%)" },
       {
         clipPath: "circle(150% at 50% 55%)",
         duration: 0.33,
