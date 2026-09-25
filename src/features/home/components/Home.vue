@@ -4,7 +4,6 @@ import Hero from "./Hero.vue";
 import About from "./About.vue";
 //import AboutSections from "../features/about/Sections.vue";
 import Projects from "./Projects.vue";
-import Contact from "./Contact.vue";
 import NextSection from "./NextSection.vue";
 import Footer from "../../../components/Footer.vue";
 import { ref, onMounted, onUnmounted, watchEffect, computed, watch } from "vue";
@@ -160,9 +159,7 @@ watch(
       </div>
       <Projects id="projects" @loaded="handleProjectsLoaded" />
       <NextSection v-if="projectsLoaded" />
-      <div ref="contactRef" class="home-contact">
-        <Contact id="contact" v-if="projectsLoaded" />
-      </div>
+      <div ref="contactRef" class="home-contact"></div>
       <Footer :withSocial="false"></Footer>
     </Layout>
   </div>

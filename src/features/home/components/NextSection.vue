@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { nextSection } from "../../../animations/transitions/next-section";
 import { t } from "../../../i18n/utils/translate";
-import Social from "../../../components/Social.vue";
+import Contact from "./Contact.vue";
 
 const sectionRef = ref<HTMLElement | null>(null);
 
@@ -57,13 +57,10 @@ onUnmounted(() => {
         </text>
       </svg>
 
-      <!-- Circular reveal: Contact section appears from inside the expanding circle -->
+      <!-- Circular reveal: expands to show Contact section content -->
       <div class="next-section__reveal">
         <div class="next-section__reveal-content">
-          <div class="next-section__reveal-inner">
-            <h2 class="next-section__reveal-title" v-html="t('lets-work-together')"></h2>
-            <Social variant="background" />
-          </div>
+          <Contact no-transition />
         </div>
       </div>
     </div>
@@ -87,7 +84,6 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    will-change: transform, opacity;
   }
 
   &__svg {
@@ -110,11 +106,11 @@ onUnmounted(() => {
     }
   }
 
-  // ─── Circular reveal overlay ───
+  // ─── Circular reveal ───
   &__reveal {
     position: absolute;
     inset: 0;
-    background: var(--color-black-400);
+    background: rgb(233, 222, 208); // must match Three.js colors.beigeDark
     clip-path: circle(0% at 50% 55%);
     z-index: 2;
     will-change: clip-path;
@@ -123,57 +119,22 @@ onUnmounted(() => {
   &__reveal-content {
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: var(--space-md);
-    max-width: calc(var(--breakpoint-xxxl));
-    margin: 0 auto;
-    padding: var(--space-outer);
-    padding-top: var(--space-lg);
-    align-content: start;
-
-    @include mixins.mq("md") {
-      gap: var(--space-xl);
-      padding-top: var(--space-xxl);
-    }
-  }
-
-  &__reveal-inner {
+    opacity: 0;
     position: relative;
-    padding-top: var(--space-md);
-    grid-column: 1 / 13;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-
-    @include mixins.mq("sm") {
-      grid-column: 1 / 8;
-    }
-
-    @include mixins.mq("md") {
-      gap: var(--space-xl);
-      grid-column: 1 / 6;
-      padding-top: var(--space-lg);
-    }
-
-    @include mixins.mq("lg") {
-      grid-column: 2 / 6;
-    }
+    z-index: 5; // above the canvas
   }
+}
 
-  &__reveal-title {
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    font-size: var(--font-size-title-md);
-    color: var(--color-beige-400);
-
-    @include mixins.mq("sm") {
-      font-size: var(--font-size-title-lg);
-    }
-
-    @include mixins.mq("xl") {
-      font-size: var(--font-size-title-xl);
-    }
-  }
+// Global class applied to the Three.js canvas when it's moved into the reveal
+.three-canvas-in-reveal {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
 }
 </style>
