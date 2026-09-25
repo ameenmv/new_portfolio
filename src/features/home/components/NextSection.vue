@@ -34,7 +34,6 @@ onUnmounted(() => {
             <stop offset="100%" stop-color="#34bfff" />
           </linearGradient>
 
-          <!-- Smooth flowing curve matching Guillaume Zhu's path style -->
           <path
             id="nextCurvePath"
             d="M0 611 C175 378 857 -285 1461 140 C1912 456 2114 806 2679 611 C3088 470 3705 -33 4355 782 C4701 1215 5306 1467 6108 329"
@@ -55,6 +54,9 @@ onUnmounted(() => {
           ><tspan fill="#f5efe6">{{ t('next-text-cream') }}</tspan><tspan fill="url(#nextTextGrad)">{{ t('next-text-gradient') }}</tspan></textPath>
         </text>
       </svg>
+
+      <!-- The expanding orb that reveals the contact section -->
+      <div class="next-section__orb"></div>
     </div>
   </section>
 </template>
@@ -63,7 +65,7 @@ onUnmounted(() => {
 .next-section {
   position: relative;
   width: 100%;
-  height: 400vh;
+  height: 500vh;
   background: var(--color-black-400);
   z-index: 1;
 
@@ -80,7 +82,6 @@ onUnmounted(() => {
   }
 
   &__svg {
-    // Override the CSS reset's max-inline-size: 100% on SVGs
     max-inline-size: none !important;
     block-size: auto !important;
     width: 400vw;
@@ -98,6 +99,21 @@ onUnmounted(() => {
       width: 300vw;
       min-width: 300vw;
     }
+  }
+
+  &__orb {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ff8400;
+    left: 50%;
+    top: 50%;
+    margin-left: -20px;
+    margin-top: -20px;
+    opacity: 0;
+    will-change: transform;
+    z-index: 2;
   }
 }
 </style>
