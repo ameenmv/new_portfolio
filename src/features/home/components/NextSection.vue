@@ -120,7 +120,7 @@ onUnmounted(() => {
   &__reveal-content {
     width: 100%;
     height: 100%;
-    opacity: 0;
+    opacity: 1;
     position: relative;
     z-index: 5; // above the canvas
   }

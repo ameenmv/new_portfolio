@@ -118,10 +118,10 @@ const setup = (section: HTMLElement) => {
             reveal.style.clipPath = `circle(${r}% at 50% 55%)`;
           }
 
-          // ─── Canvas reparenting ───
-          if (p >= 0.45 && !canvasInReveal) {
+          // ─── Canvas reparenting (before dot appears!) ───
+          if (p >= 0.15 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
-          } else if (p < 0.45 && canvasInReveal) {
+          } else if (p < 0.15 && canvasInReveal) {
             restoreCanvas();
           }
 
@@ -159,27 +159,16 @@ const setup = (section: HTMLElement) => {
       0.40,
     );
 
-    // ─── Activate 3D contact scene ───
+    // ─── Activate 3D contact scene (early, before circle shows) ───
     tl.fromTo(
       sceneWeightsInOut.contact,
       { in: 0 },
       {
         in: 1,
-        duration: 0.15,
+        duration: 0.10,
         ease: "none",
       },
-      0.55,
-    );
-
-    // ─── Content fades in ───
-    tl.to(
-      revealContent,
-      {
-        opacity: 1,
-        duration: 0.12,
-        ease: "power1.out",
-      },
-      0.68,
+      0.15,
     );
   });
 };
