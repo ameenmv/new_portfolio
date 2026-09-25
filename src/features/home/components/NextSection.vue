@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { nextSection } from "../../../animations/transitions/next-section";
 import { t } from "../../../i18n/utils/translate";
+import Social from "../../../components/Social.vue";
 
 const sectionRef = ref<HTMLElement | null>(null);
 
@@ -19,6 +20,7 @@ onUnmounted(() => {
 <template>
   <section class="next-section" ref="sectionRef" id="next">
     <div class="next-section__container">
+      <!-- Kinetic SVG text on curved path -->
       <svg
         class="next-section__svg"
         xmlns="http://www.w3.org/2000/svg"
@@ -55,8 +57,15 @@ onUnmounted(() => {
         </text>
       </svg>
 
-      <!-- The expanding orb that reveals the contact section -->
-      <div class="next-section__orb"></div>
+      <!-- Circular reveal: Contact section appears from inside the expanding circle -->
+      <div class="next-section__reveal">
+        <div class="next-section__reveal-content">
+          <div class="next-section__reveal-inner">
+            <h2 class="next-section__reveal-title" v-html="t('lets-work-together')"></h2>
+            <Social variant="background" />
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -101,19 +110,70 @@ onUnmounted(() => {
     }
   }
 
-  &__orb {
+  // ─── Circular reveal overlay ───
+  &__reveal {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #ff8400;
-    left: 50%;
-    top: 50%;
-    margin-left: -20px;
-    margin-top: -20px;
-    opacity: 0;
-    will-change: transform;
+    inset: 0;
+    background: var(--color-black-400);
+    clip-path: circle(0% at 50% 55%);
     z-index: 2;
+    will-change: clip-path;
+  }
+
+  &__reveal-content {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--space-md);
+    max-width: calc(var(--breakpoint-xxxl));
+    margin: 0 auto;
+    padding: var(--space-outer);
+    padding-top: var(--space-lg);
+    align-content: start;
+
+    @include mixins.mq("md") {
+      gap: var(--space-xl);
+      padding-top: var(--space-xxl);
+    }
+  }
+
+  &__reveal-inner {
+    position: relative;
+    padding-top: var(--space-md);
+    grid-column: 1 / 13;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+
+    @include mixins.mq("sm") {
+      grid-column: 1 / 8;
+    }
+
+    @include mixins.mq("md") {
+      gap: var(--space-xl);
+      grid-column: 1 / 6;
+      padding-top: var(--space-lg);
+    }
+
+    @include mixins.mq("lg") {
+      grid-column: 2 / 6;
+    }
+  }
+
+  &__reveal-title {
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    font-size: var(--font-size-title-md);
+    color: var(--color-beige-400);
+
+    @include mixins.mq("sm") {
+      font-size: var(--font-size-title-lg);
+    }
+
+    @include mixins.mq("xl") {
+      font-size: var(--font-size-title-xl);
+    }
   }
 }
 </style>
