@@ -35,29 +35,42 @@ const restoreCanvas = () => {
   canvasInReveal = false;
 };
 
-// Smoothstep easing
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
+
+// Convert SVG text-end position to container percentage coordinates
+const svgToContainerPct = (
+  svgEl: SVGSVGElement,
+  container: HTMLElement,
+  svgX: number,
+  svgY: number,
+): { x: number; y: number } => {
+  const svgRect = svgEl.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const screenX = svgRect.left + (svgX / 3900) * svgRect.width;
+  const screenY = svgRect.top + (svgY / 900) * svgRect.height;
+  return {
+    x: ((screenX - containerRect.left) / containerRect.width) * 100,
+    y: ((screenY - containerRect.top) / containerRect.height) * 100,
+  };
+};
 
 const setup = (section: HTMLElement) => {
   const textPath = section.querySelector("#nextTextPath") as SVGTextContentElement;
+  const textEl = section.querySelector(".next-section__svg text") as SVGTextElement;
   const svg = section.querySelector(".next-section__svg") as SVGSVGElement;
-  const svgDot = section.querySelector("#nextDot") as SVGCircleElement;
   const reveal = section.querySelector(".next-section__reveal") as HTMLElement;
   const revealContent = section.querySelector(".next-section__reveal-content") as HTMLElement;
   const container = section.querySelector(".next-section__container") as HTMLElement;
 
-  if (!textPath || !svg || !svgDot || !reveal || !revealContent || !container) {
+  if (!textPath || !textEl || !svg || !reveal || !revealContent || !container) {
     console.warn("[next-section] Required elements not found");
     return;
   }
 
-  // SVG viewBox center for "move to center" animation
-  const viewBoxCenterX = 1950; // 3900 / 2
-  const viewBoxCenterY = 495;  // 900 * 0.55
-
-  // Last known dot position in SVG coordinates
-  let lastDotSvgX = 0;
-  let lastDotSvgY = 0;
+  // Last known text-end position as container percentages
+  let lastPctX = 50;
+  let lastPctY = 50;
+  let wakeUpCalled = false;
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
     const tl = gsap.timeline({
@@ -69,44 +82,40 @@ const setup = (section: HTMLElement) => {
         onUpdate: (self) => {
           const p = self.progress;
 
-          // ─── SVG Dot: track text end position ───
+          // ─── Track text end position ───
           if (p >= 0.10 && p < 0.42) {
             try {
               const nChars = textPath.getNumberOfChars();
               if (nChars > 0) {
                 const endPos = textPath.getEndPositionOfChar(nChars - 1);
-                lastDotSvgX = endPos.x;
-                lastDotSvgY = endPos.y;
-
-                // Position the SVG circle directly (same coordinate system!)
-                svgDot.setAttribute("cx", String(endPos.x));
-                svgDot.setAttribute("cy", String(endPos.y));
+                const pct = svgToContainerPct(svg, container, endPos.x, endPos.y);
+                lastPctX = pct.x;
+                lastPctY = pct.y;
               }
-            } catch {
-              // silently fail if chars not available
-            }
+            } catch { /* skip */ }
           }
 
-          // ─── SVG Dot: move to center after text fades ───
-          if (p >= 0.42 && p < 0.52) {
-            const t = Math.min(1, (p - 0.42) / 0.08);
+          // ─── ONE clip-path for everything ───
+          if (p < 0.20) {
+            // Not visible yet
+            reveal.style.clipPath = "circle(0% at 50% 55%)";
+          } else if (p < 0.42) {
+            // Dot follows text end
+            reveal.style.clipPath = `circle(1.5% at ${lastPctX}% ${lastPctY}%)`;
+          } else if (p < 0.55) {
+            // Dot moves to center and grows
+            const t = Math.min(1, (p - 0.42) / 0.13);
             const eased = smoothstep(t);
-            const x = lastDotSvgX + (viewBoxCenterX - lastDotSvgX) * eased;
-            const y = lastDotSvgY + (viewBoxCenterY - lastDotSvgY) * eased;
-            svgDot.setAttribute("cx", String(x));
-            svgDot.setAttribute("cy", String(y));
-
-            // Grow the dot as it moves to center
-            const r = 18 + t * 30;
-            svgDot.setAttribute("r", String(r));
-          }
-
-          // ─── SVG Dot: visibility ───
-          if (p >= 0.18 && p < 0.52) {
-            svgDot.setAttribute("opacity", "1");
+            const x = lastPctX + (50 - lastPctX) * eased;
+            const y = lastPctY + (55 - lastPctY) * eased;
+            const r = 1.5 + eased * 5;
+            reveal.style.clipPath = `circle(${r}% at ${x}% ${y}%)`;
           } else {
-            svgDot.setAttribute("opacity", "0");
-            svgDot.setAttribute("r", "18");
+            // Full expansion
+            const t = Math.min(1, (p - 0.55) / 0.30);
+            const eased = smoothstep(t);
+            const r = 6.5 + eased * 143.5;
+            reveal.style.clipPath = `circle(${r}% at 50% 55%)`;
           }
 
           // ─── Canvas reparenting ───
@@ -115,11 +124,19 @@ const setup = (section: HTMLElement) => {
           } else if (p < 0.45 && canvasInReveal) {
             restoreCanvas();
           }
+
+          // ─── Avatar wake up ───
+          if (p >= 0.80 && !wakeUpCalled) {
+            avatarAnimations.wakeUp(0.25);
+            wakeUpCalled = true;
+          } else if (p < 0.80) {
+            wakeUpCalled = false;
+          }
         },
       },
     });
 
-    // ─── Phase 1 (0 → 0.40): Text scrolls along the curved path ───
+    // ─── Text scrolls along the curved path ───
     tl.fromTo(
       textPath,
       { attr: { startOffset: "100%" } },
@@ -131,9 +148,9 @@ const setup = (section: HTMLElement) => {
       0,
     );
 
-    // ─── Phase 2 (0.40 → 0.45): ONLY text fades out (SVG circle stays visible!) ───
+    // ─── Text fades out (only text element) ───
     tl.to(
-      textPath.closest("text")!,
+      textEl,
       {
         opacity: 0,
         duration: 0.05,
@@ -142,19 +159,7 @@ const setup = (section: HTMLElement) => {
       0.40,
     );
 
-    // ─── Phase 3 (0.52): Set reveal clip-path starting point, then expand ───
-    tl.set(reveal, { clipPath: "circle(1% at 50% 55%)" }, 0.52);
-    tl.to(
-      reveal,
-      {
-        clipPath: "circle(150% at 50% 55%)",
-        duration: 0.33,
-        ease: "power2.inOut",
-      },
-      0.52,
-    );
-
-    // ─── Phase 4 (0.55 → 0.70): Activate 3D contact scene ───
+    // ─── Activate 3D contact scene ───
     tl.fromTo(
       sceneWeightsInOut.contact,
       { in: 0 },
@@ -166,7 +171,7 @@ const setup = (section: HTMLElement) => {
       0.55,
     );
 
-    // ─── Phase 5 (0.68 → 0.80): Content fades in ───
+    // ─── Content fades in ───
     tl.to(
       revealContent,
       {
@@ -175,15 +180,6 @@ const setup = (section: HTMLElement) => {
         ease: "power1.out",
       },
       0.68,
-    );
-
-    // ─── Phase 6 (0.80): Wake up avatar animation ───
-    tl.call(
-      () => {
-        avatarAnimations.wakeUp(0.25);
-      },
-      [],
-      0.80,
     );
   });
 };

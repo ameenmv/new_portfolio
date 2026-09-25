@@ -55,16 +55,6 @@ onUnmounted(() => {
             startOffset="100%"
           ><tspan fill="#f5efe6">{{ t('next-text-cream') }}</tspan><tspan fill="url(#nextTextGrad)">{{ t('next-text-gradient') }}</tspan></textPath>
         </text>
-
-        <!-- Dot that follows text end -->
-        <circle
-          id="nextDot"
-          r="18"
-          fill="rgb(233, 222, 208)"
-          cx="0"
-          cy="0"
-          opacity="0"
-        />
       </svg>
 
 
