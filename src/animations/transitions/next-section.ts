@@ -65,39 +65,42 @@ const setup = (section: HTMLElement) => {
         scrub: 1.5,
         onUpdate: (self) => {
           // Move canvas into reveal when the circle starts expanding
-          if (self.progress >= 0.50 && !canvasInReveal) {
+          if (self.progress >= 0.45 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
-          } else if (self.progress < 0.50 && canvasInReveal) {
+          } else if (self.progress < 0.45 && canvasInReveal) {
             restoreCanvas();
           }
         },
       },
     });
 
-    // ─── Phase 1 (0 → 0.50): Text scrolls along the curved path ───
+    // ─── Phase 1 (0 → 0.40): Text scrolls along the curved path ───
     tl.fromTo(
       textPath,
       { attr: { startOffset: "100%" } },
       {
         attr: { startOffset: isMobile ? "-150%" : "-100%" },
-        duration: 0.50,
+        duration: 0.40,
         ease: "none",
       },
       0,
     );
 
-    // ─── Phase 2 (0.45 → 0.50): Small circle appears ───
-    tl.to(
+    // ─── Phase 2 (0.35 → 0.40): Small dot appears at text end position ───
+    tl.fromTo(
       reveal,
       {
-        clipPath: "circle(2% at 50% 55%)",
+        clipPath: "circle(0% at 75% 40%)",
+      },
+      {
+        clipPath: "circle(1.5% at 75% 40%)",
         duration: 0.05,
         ease: "power1.out",
       },
-      0.45,
+      0.35,
     );
 
-    // ─── Phase 3 (0.50 → 0.55): SVG text fades out ───
+    // ─── Phase 3 (0.40 → 0.45): Text fades out ───
     tl.to(
       svg,
       {
@@ -105,23 +108,32 @@ const setup = (section: HTMLElement) => {
         duration: 0.05,
         ease: "power1.in",
       },
-      0.50,
+      0.40,
     );
 
-    // ─── Phase 4 (0.55 → 0.90): Circle expands to fill viewport ───
+    // ─── Phase 4 (0.40 → 0.52): Dot moves down to center ───
+    tl.to(
+      reveal,
+      {
+        clipPath: "circle(1.5% at 50% 55%)",
+        duration: 0.12,
+        ease: "power2.inOut",
+      },
+      0.40,
+    );
+
+    // ─── Phase 5 (0.52 → 0.85): Dot expands to fill viewport ───
     tl.to(
       reveal,
       {
         clipPath: "circle(150% at 50% 55%)",
-        duration: 0.35,
+        duration: 0.33,
         ease: "power2.inOut",
       },
-      0.55,
+      0.52,
     );
 
-    // ─── Phase 5 (0.60 → 0.75): Activate 3D contact scene ───
-    // This drives sceneWeightsInOut.contact.in from 0 → 1
-    // which tells the camera to move to the contact character position
+    // ─── Phase 6 (0.55 → 0.70): Activate 3D contact scene ───
     tl.fromTo(
       sceneWeightsInOut.contact,
       { in: 0 },
@@ -130,18 +142,18 @@ const setup = (section: HTMLElement) => {
         duration: 0.15,
         ease: "none",
       },
-      0.60,
+      0.55,
     );
 
-    // ─── Phase 6 (0.72 → 0.85): Content fades in when circle is large ───
+    // ─── Phase 7 (0.68 → 0.80): Content fades in ───
     tl.to(
       revealContent,
       {
         opacity: 1,
-        duration: 0.13,
+        duration: 0.12,
         ease: "power1.out",
       },
-      0.72,
+      0.68,
     );
 
     // ─── Phase 7 (0.80): Wake up avatar animation ───
