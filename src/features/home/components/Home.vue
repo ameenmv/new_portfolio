@@ -159,7 +159,6 @@ watch(
       </div>
       <Projects id="projects" @loaded="handleProjectsLoaded" />
       <NextSection v-if="projectsLoaded" />
-      <div ref="contactRef" class="home-contact"></div>
       <Footer :withSocial="false"></Footer>
     </Layout>
   </div>
@@ -213,12 +212,6 @@ watch(
         transform: scale(1);
       }
     }
-  }
-
-  &-contact {
-    width: 100%;
-    min-height: calc(var(--lvh) * 100);
-    max-height: calc(var(--lvh) * 100);
   }
 }
 
