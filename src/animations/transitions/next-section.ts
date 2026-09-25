@@ -12,19 +12,12 @@ const moveCanvasToReveal = (reveal: Element) => {
   const canvas = document.querySelector(".three-canvas") as HTMLElement;
   if (!canvas || canvasInReveal) return;
 
-  // Save original DOM position
   canvasOriginalParent = canvas.parentElement;
   canvasOriginalNextSibling = canvas.nextSibling;
 
-  // Move canvas INTO the reveal (before the content div)
   reveal.insertBefore(canvas, reveal.firstChild);
-
-  // Add reveal-mode class (overrides the contact positioning)
   canvas.classList.add("three-canvas-in-reveal");
-
-  // Trigger Three.js renderer resize
   window.dispatchEvent(new Event("resize"));
-
   canvasInReveal = true;
 };
 
@@ -32,29 +25,39 @@ const restoreCanvas = () => {
   const canvas = document.querySelector(".three-canvas") as HTMLElement;
   if (!canvas || !canvasOriginalParent || !canvasInReveal) return;
 
-  // Move canvas back to its original parent
   if (canvasOriginalNextSibling && canvasOriginalNextSibling.parentNode === canvasOriginalParent) {
     canvasOriginalParent.insertBefore(canvas, canvasOriginalNextSibling);
   } else {
     canvasOriginalParent.appendChild(canvas);
   }
 
-  // Remove reveal-mode class
   canvas.classList.remove("three-canvas-in-reveal");
-
   canvasInReveal = false;
 };
 
-const setup = (section: HTMLElement) => {
-  const textPath = section.querySelector("#nextTextPath");
-  const svg = section.querySelector(".next-section__svg");
-  const reveal = section.querySelector(".next-section__reveal");
-  const revealContent = section.querySelector(".next-section__reveal-content");
+// Smoothstep easing
+const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
-  if (!textPath || !svg || !reveal || !revealContent) {
+const setup = (section: HTMLElement) => {
+  const textPath = section.querySelector("#nextTextPath") as SVGTextContentElement;
+  const svg = section.querySelector(".next-section__svg") as SVGSVGElement;
+  const svgDot = section.querySelector("#nextDot") as SVGCircleElement;
+  const reveal = section.querySelector(".next-section__reveal") as HTMLElement;
+  const revealContent = section.querySelector(".next-section__reveal-content") as HTMLElement;
+  const container = section.querySelector(".next-section__container") as HTMLElement;
+
+  if (!textPath || !svg || !svgDot || !reveal || !revealContent || !container) {
     console.warn("[next-section] Required elements not found");
     return;
   }
+
+  // SVG viewBox center for "move to center" animation
+  const viewBoxCenterX = 1950; // 3900 / 2
+  const viewBoxCenterY = 495;  // 900 * 0.55
+
+  // Last known dot position in SVG coordinates
+  let lastDotSvgX = 0;
+  let lastDotSvgY = 0;
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
     const tl = gsap.timeline({
@@ -62,12 +65,54 @@ const setup = (section: HTMLElement) => {
         trigger: section,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: 1.5,
+        scrub: 0.5,
         onUpdate: (self) => {
-          // Move canvas into reveal when the circle starts expanding
-          if (self.progress >= 0.45 && !canvasInReveal) {
+          const p = self.progress;
+
+          // ─── SVG Dot: track text end position ───
+          if (p >= 0.10 && p < 0.42) {
+            try {
+              const nChars = textPath.getNumberOfChars();
+              if (nChars > 0) {
+                const endPos = textPath.getEndPositionOfChar(nChars - 1);
+                lastDotSvgX = endPos.x;
+                lastDotSvgY = endPos.y;
+
+                // Position the SVG circle directly (same coordinate system!)
+                svgDot.setAttribute("cx", String(endPos.x));
+                svgDot.setAttribute("cy", String(endPos.y));
+              }
+            } catch {
+              // silently fail if chars not available
+            }
+          }
+
+          // ─── SVG Dot: move to center after text fades ───
+          if (p >= 0.42 && p < 0.52) {
+            const t = Math.min(1, (p - 0.42) / 0.08);
+            const eased = smoothstep(t);
+            const x = lastDotSvgX + (viewBoxCenterX - lastDotSvgX) * eased;
+            const y = lastDotSvgY + (viewBoxCenterY - lastDotSvgY) * eased;
+            svgDot.setAttribute("cx", String(x));
+            svgDot.setAttribute("cy", String(y));
+
+            // Grow the dot as it moves to center
+            const r = 18 + t * 30;
+            svgDot.setAttribute("r", String(r));
+          }
+
+          // ─── SVG Dot: visibility ───
+          if (p >= 0.18 && p < 0.52) {
+            svgDot.setAttribute("opacity", "1");
+          } else {
+            svgDot.setAttribute("opacity", "0");
+            svgDot.setAttribute("r", "18");
+          }
+
+          // ─── Canvas reparenting ───
+          if (p >= 0.45 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
-          } else if (self.progress < 0.45 && canvasInReveal) {
+          } else if (p < 0.45 && canvasInReveal) {
             restoreCanvas();
           }
         },
@@ -86,21 +131,7 @@ const setup = (section: HTMLElement) => {
       0,
     );
 
-    // ─── Phase 2 (0.35 → 0.40): Small dot appears at text end position ───
-    tl.fromTo(
-      reveal,
-      {
-        clipPath: "circle(0% at 75% 40%)",
-      },
-      {
-        clipPath: "circle(1.5% at 75% 40%)",
-        duration: 0.05,
-        ease: "power1.out",
-      },
-      0.35,
-    );
-
-    // ─── Phase 3 (0.40 → 0.45): Text fades out ───
+    // ─── Phase 2 (0.40 → 0.45): Text fades out ───
     tl.to(
       svg,
       {
@@ -111,20 +142,10 @@ const setup = (section: HTMLElement) => {
       0.40,
     );
 
-    // ─── Phase 4 (0.40 → 0.52): Dot moves down to center ───
-    tl.to(
+    // ─── Phase 3 (0.52 → 0.85): Clip-path reveal expands from center ───
+    tl.fromTo(
       reveal,
-      {
-        clipPath: "circle(1.5% at 50% 55%)",
-        duration: 0.12,
-        ease: "power2.inOut",
-      },
-      0.40,
-    );
-
-    // ─── Phase 5 (0.52 → 0.85): Dot expands to fill viewport ───
-    tl.to(
-      reveal,
+      { clipPath: "circle(1% at 50% 55%)" },
       {
         clipPath: "circle(150% at 50% 55%)",
         duration: 0.33,
@@ -133,7 +154,7 @@ const setup = (section: HTMLElement) => {
       0.52,
     );
 
-    // ─── Phase 6 (0.55 → 0.70): Activate 3D contact scene ───
+    // ─── Phase 4 (0.55 → 0.70): Activate 3D contact scene ───
     tl.fromTo(
       sceneWeightsInOut.contact,
       { in: 0 },
@@ -145,7 +166,7 @@ const setup = (section: HTMLElement) => {
       0.55,
     );
 
-    // ─── Phase 7 (0.68 → 0.80): Content fades in ───
+    // ─── Phase 5 (0.68 → 0.80): Content fades in ───
     tl.to(
       revealContent,
       {
@@ -156,7 +177,7 @@ const setup = (section: HTMLElement) => {
       0.68,
     );
 
-    // ─── Phase 7 (0.80): Wake up avatar animation ───
+    // ─── Phase 6 (0.80): Wake up avatar animation ───
     tl.call(
       () => {
         avatarAnimations.wakeUp(0.25);
@@ -168,10 +189,7 @@ const setup = (section: HTMLElement) => {
 };
 
 const destroy = () => {
-  // Always restore canvas before destroying
   restoreCanvas();
-
-  // Reset contact scene weight
   sceneWeightsInOut.contact.in = 0;
   sceneWeightsInOut.contact.out = 0;
 
