@@ -108,17 +108,23 @@ const handleTimelineCreated = (timeline: gsap.core.Timeline, delay: number) => {
 
 const SERVICES_EN = [
   { name: "Vue.js & Nuxt.js" },
-  { name: "React & JavaScript" },
+  { name: "TypeScript & JavaScript" },
   { name: "GSAP & Animations" },
   { name: "Tailwind CSS & SASS" },
+  { name: "Pinia & TanStack Query" },
+  { name: "NestJS & MongoDB" },
+  { name: "WebSockets & Real-Time" },
   { name: "Laravel & RESTful APIs" },
 ] as const satisfies { name: string }[];
 
 const SERVICES_DE = [
   { name: "Vue.js & Nuxt.js" },
-  { name: "React & JavaScript" },
+  { name: "TypeScript & JavaScript" },
   { name: "GSAP & Animationen" },
   { name: "Tailwind CSS & SASS" },
+  { name: "Pinia & TanStack Query" },
+  { name: "NestJS & MongoDB" },
+  { name: "WebSockets & Echtzeit" },
   { name: "Laravel & RESTful APIs" },
 ] as const satisfies { name: string }[];
 
