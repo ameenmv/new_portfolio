@@ -1,6 +1,9 @@
 User-agent: *
+Allow: /
 
 Disallow: /legal
 Disallow: /de/legal
 Disallow: /privacy
 Disallow: /de/privacy
+
+Sitemap: https://www.ameeen.me/sitemap.xml
