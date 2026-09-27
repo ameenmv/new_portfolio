@@ -158,7 +158,7 @@ watch(
         <div class="about-spacer" ref="aboutSpacerRef" id="about"></div>
       </div>
       <Projects id="projects" @loaded="handleProjectsLoaded" />
-      <NextSection v-if="projectsLoaded" />
+      <NextSection id="contact" v-if="projectsLoaded" />
       <Footer :withSocial="false"></Footer>
     </Layout>
   </div>
