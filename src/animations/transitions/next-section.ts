@@ -54,6 +54,103 @@ const svgToContainerPct = (
   };
 };
 
+// ─── Letter assembly helpers ───
+interface CharInfo {
+  el: SVGTSpanElement;
+  yOffset: number;
+  rotation: number;
+  initRelDy: number;
+  group: number; // 0 = cream (chaotic scatter), 1 = gradient (elegant cascade)
+}
+
+/**
+ * Split textPath tspans into per-character tspans.
+ * Group 0 (cream): chaotic random scatter (up/down + rotation)
+ * Group 1 (gradient): elegant cascade from above (no rotation)
+ */
+const splitTextIntoChars = (textPath: SVGTextContentElement): CharInfo[] => {
+  const originalTspans = Array.from(textPath.querySelectorAll("tspan"));
+  const chars: CharInfo[] = [];
+
+  const tspanInfos = originalTspans.map((ts) => ({
+    text: ts.textContent || "",
+    fill: ts.getAttribute("fill") || "",
+  }));
+
+  while (textPath.firstChild) {
+    textPath.removeChild(textPath.firstChild);
+  }
+
+  // First pass: create tspans with group-specific offsets
+  const absoluteOffsets: number[] = [];
+  const rotationValues: number[] = [];
+  const groups: number[] = [];
+  let idx = 0;
+
+  for (let g = 0; g < tspanInfos.length; g++) {
+    const info = tspanInfos[g];
+    if (!info) continue;
+
+    for (let i = 0; i < info.text.length; i++) {
+      const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+      tspan.textContent = info.text[i] ?? "";
+      tspan.setAttribute("fill", info.fill);
+
+      let yOffset: number;
+      let rotation: number;
+
+      if (g === 0) {
+        // ─── Cream text: chaotic scatter (up/down + random rotation) ───
+        const direction = idx % 2 === 0 ? -1 : 1;
+        yOffset = direction * (300 + Math.random() * 400);
+        rotation = (Math.random() - 0.5) * 90;
+      } else {
+        // ─── Gradient text: elegant cascade from above (no rotation) ───
+        yOffset = -(400 + Math.random() * 300); // always from above
+        rotation = 0; // clean, no rotation
+      }
+
+      absoluteOffsets.push(yOffset);
+      rotationValues.push(rotation);
+      groups.push(g);
+
+      textPath.appendChild(tspan);
+      idx++;
+    }
+  }
+
+  // Second pass: convert absolute offsets to relative dy, set initial state
+  const allTspans = Array.from(textPath.querySelectorAll("tspan"));
+  for (let i = 0; i < allTspans.length; i++) {
+    const tspan = allTspans[i];
+    const absOffset = absoluteOffsets[i];
+    const prevOffset = absoluteOffsets[i - 1];
+    const rot = rotationValues[i];
+    const group = groups[i];
+    if (!tspan || absOffset === undefined || rot === undefined || group === undefined) continue;
+
+    const relDy = i === 0 ? absOffset : absOffset - (prevOffset ?? 0);
+
+    tspan.setAttribute("dy", relDy.toFixed(1));
+    tspan.setAttribute("rotate", rot.toFixed(1));
+
+    // Gradient chars start invisible for reveal effect
+    if (group === 1) {
+      tspan.setAttribute("opacity", "0");
+    }
+
+    chars.push({
+      el: tspan,
+      yOffset: absOffset,
+      rotation: rot,
+      initRelDy: relDy,
+      group,
+    });
+  }
+
+  return chars;
+};
+
 const setup = (section: HTMLElement) => {
   const textPath = section.querySelector("#nextTextPath") as SVGTextContentElement;
   const textEl = section.querySelector(".next-section__svg text") as SVGTextElement;
@@ -67,15 +164,15 @@ const setup = (section: HTMLElement) => {
     return;
   }
 
+  // ─── Split text into per-character tspans (sets initial scatter) ───
+  const charInfos = splitTextIntoChars(textPath);
+
   // Last known text-end position as container percentages
   let lastPctX = 50;
   let lastPctY = 50;
   let wakeUpCalled = false;
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
-    // We need the dot tspan to hide the SVG period when the reveal dot covers it
-    const dotChar = section.querySelector("#nextDotChar") as SVGTSpanElement;
-
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -85,7 +182,7 @@ const setup = (section: HTMLElement) => {
         onUpdate: (self) => {
           const p = self.progress;
 
-          // ─── Track the period (last char) position continuously ───
+          // ─── Track the period (last char) position ───
           if (p >= 0.05 && p < 0.45) {
             try {
               const nChars = textPath.getNumberOfChars();
@@ -99,24 +196,18 @@ const setup = (section: HTMLElement) => {
           }
 
           // ─── Dot sizing: matches the period char, then expands ───
-          // The dot radius when it's acting as the period (visually matches the SVG period)
           const periodRadius = isMobile ? 1.2 : 0.9;
 
           if (p < 0.35) {
-            // Period hasn't scrolled into view yet — no dot
             reveal.style.clipPath = "circle(0% at 50% 55%)";
           } else if (p < 0.45) {
-            // Dot sits exactly on the period character, same size
             reveal.style.clipPath = `circle(${periodRadius}% at ${lastPctX}% ${lastPctY}%)`;
           } else if (p < 0.55) {
-            // Text is fading out, dot stays at last known position
-            // Slight grow to make it feel alive
             const t = (p - 0.45) / 0.10;
             const eased = smoothstep(t);
             const r = periodRadius + eased * 1.5;
             reveal.style.clipPath = `circle(${r}% at ${lastPctX}% ${lastPctY}%)`;
           } else if (p < 0.68) {
-            // Dot migrates from text position to center and grows
             const t = Math.min(1, (p - 0.55) / 0.13);
             const eased = smoothstep(t);
             const x = lastPctX + (50 - lastPctX) * eased;
@@ -124,14 +215,13 @@ const setup = (section: HTMLElement) => {
             const r = (periodRadius + 1.5) + eased * 6;
             reveal.style.clipPath = `circle(${r}% at ${x}% ${y}%)`;
           } else {
-            // Full expansion from center
             const t = Math.min(1, (p - 0.68) / 0.25);
             const eased = smoothstep(t);
             const r = (periodRadius + 7.5) + eased * 142;
             reveal.style.clipPath = `circle(${r}% at 50% 50%)`;
           }
 
-          // ─── Canvas reparenting (before dot appears!) ───
+          // ─── Canvas reparenting ───
           if (p >= 0.15 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
           } else if (p < 0.15 && canvasInReveal) {
@@ -140,7 +230,7 @@ const setup = (section: HTMLElement) => {
 
           // ─── Avatar wake up ───
           if (p >= 0.80 && !wakeUpCalled) {
-            avatarAnimations.wakeUp(0.25);
+            avatarAnimations.wakeUp();
             wakeUpCalled = true;
           } else if (p < 0.80) {
             wakeUpCalled = false;
@@ -148,6 +238,42 @@ const setup = (section: HTMLElement) => {
         },
       },
     });
+
+    // ─── Letter assembly via GSAP ───
+    // All chars must use SAME timing (dy is cumulative in SVG textPath).
+    // Visual difference comes from scatter pattern, not timing:
+    //   Cream: chaotic scatter (random dy + rotation)
+    //   Gradient: elegant cascade from above (uniform dy + fade in, no rotation)
+    for (let i = 0; i < charInfos.length; i++) {
+      const char = charInfos[i];
+      if (!char) continue;
+
+      const staggerDelay = (i / charInfos.length) * 0.06;
+
+      if (char.group === 0) {
+        // Cream: dy + rotate → 0
+        tl.to(
+          char.el,
+          {
+            attr: { dy: 0, rotate: 0 },
+            duration: 0.18,
+            ease: "power3.out",
+          },
+          0.04 + staggerDelay,
+        );
+      } else {
+        // Gradient: dy → 0 + fade in (no rotate needed, it's already 0)
+        tl.to(
+          char.el,
+          {
+            attr: { dy: 0, opacity: 1 },
+            duration: 0.18,
+            ease: "power3.out",
+          },
+          0.04 + staggerDelay,
+        );
+      }
+    }
 
     // ─── Text scrolls along the curved path ───
     tl.fromTo(
@@ -161,7 +287,7 @@ const setup = (section: HTMLElement) => {
       0,
     );
 
-    // ─── Text fades out (only text element) ───
+    // ─── Text fades out ───
     tl.to(
       textEl,
       {
@@ -172,7 +298,7 @@ const setup = (section: HTMLElement) => {
       0.40,
     );
 
-    // ─── Activate 3D contact scene (early, before circle shows) ───
+    // ─── Activate 3D contact scene ───
     tl.fromTo(
       sceneWeightsInOut.contact,
       { in: 0 },
