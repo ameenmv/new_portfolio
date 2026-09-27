@@ -2,11 +2,13 @@ import { waypoints } from "./waypoints";
 import { scenes } from "./scenes";
 import { about } from "./transitions/about";
 import { contact } from "./transitions/contact";
+import { nextSection } from "./transitions/next-section";
 import { intro } from "./intro";
 
 export const transitions = {
   about,
   contact,
+  nextSection,
 };
 
 let isInitialized = false;

@@ -4,16 +4,22 @@ import { transitions } from "../../../animations";
 import { t } from "../../../i18n/utils/translate";
 import Social from "../../../components/Social.vue";
 
+const props = defineProps<{
+  noTransition?: boolean;
+}>();
+
 const contactElement = ref<HTMLElement | null>(null);
 
 onMounted(() => {
-  if (contactElement.value) {
+  if (contactElement.value && !props.noTransition) {
     transitions.contact.setup(contactElement.value);
   }
 });
 
 onUnmounted(() => {
-  transitions.contact.destroy();
+  if (!props.noTransition) {
+    transitions.contact.destroy();
+  }
 });
 </script>
 

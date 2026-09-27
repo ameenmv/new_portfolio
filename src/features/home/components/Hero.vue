@@ -14,6 +14,17 @@ import AppearingText from "../../../components/AppearingText.vue";
           <h1 class="hero-title">Ameen<br />Mohamed</h1>
           <Banner class="hero-banner" :copy="t('job-title')" v-if="!preloaderVisible" animated />
         </div>
+        <Button
+          renderAs="a"
+          variant="border"
+          size="sm"
+          href="/ameen-mohamed-cv.pdf"
+          download="Ameen_Mohamed_CV.pdf"
+          class="hero-content-button"
+          data-cursor="circle-white"
+          data-hoversound="hover"
+          :aria-label="t('download-cv')"
+        >↓ {{ t("download-cv") }}</Button>
       </div>
     </div>
   </div>
