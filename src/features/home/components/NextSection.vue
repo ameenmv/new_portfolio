@@ -53,7 +53,7 @@ onUnmounted(() => {
             id="nextTextPath"
             href="#nextCurvePath"
             startOffset="100%"
-          ><tspan fill="#f5efe6">{{ t('next-text-cream') }}</tspan><tspan fill="url(#nextTextGrad)">{{ t('next-text-gradient') }}</tspan></textPath>
+          ><tspan fill="#f5efe6">{{ t('next-text-cream') }}</tspan><tspan id="nextDotChar" fill="url(#nextTextGrad)">{{ t('next-text-gradient') }}</tspan></textPath>
         </text>
       </svg>
 

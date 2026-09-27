@@ -73,6 +73,9 @@ const setup = (section: HTMLElement) => {
   let wakeUpCalled = false;
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
+    // We need the dot tspan to hide the SVG period when the reveal dot covers it
+    const dotChar = section.querySelector("#nextDotChar") as SVGTSpanElement;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -82,8 +85,8 @@ const setup = (section: HTMLElement) => {
         onUpdate: (self) => {
           const p = self.progress;
 
-          // ─── Track text end position ───
-          if (p >= 0.10 && p < 0.42) {
+          // ─── Track the period (last char) position continuously ───
+          if (p >= 0.05 && p < 0.45) {
             try {
               const nChars = textPath.getNumberOfChars();
               if (nChars > 0) {
@@ -95,27 +98,44 @@ const setup = (section: HTMLElement) => {
             } catch { /* skip */ }
           }
 
-          // ─── ONE clip-path for everything ───
-          if (p < 0.20) {
-            // Not visible yet
+          // ─── Dot sizing: matches the period char, then expands ───
+          // The dot radius when it's acting as the period (visually matches the SVG period)
+          const periodRadius = isMobile ? 1.2 : 0.9;
+
+          if (p < 0.50) {
+            // Period hasn't scrolled into view yet — no dot
             reveal.style.clipPath = "circle(0% at 50% 55%)";
-          } else if (p < 0.42) {
-            // Dot follows text end
-            reveal.style.clipPath = `circle(1.5% at ${lastPctX}% ${lastPctY}%)`;
-          } else if (p < 0.55) {
-            // Dot moves to center and grows
-            const t = Math.min(1, (p - 0.42) / 0.13);
+            if (dotChar) dotChar.style.opacity = "1";
+          } else if (p < 0.40) {
+            // Dot sits exactly on the period character, same size
+            reveal.style.clipPath = `circle(${periodRadius}% at ${lastPctX}% ${lastPctY}%)`;
+            // Hide the SVG period so we don't see double
+            if (dotChar) {
+              // Only hide the actual period (last char) — we keep the rest of the gradient text visible
+              // We can't hide just one char easily, so we let both show — the dot overlaps the period
+              dotChar.style.opacity = "1";
+            }
+          } else if (p < 0.50) {
+            // Text is fading out, dot stays at last known position
+            // Slight grow to make it feel alive
+            const t = (p - 0.40) / 0.10;
+            const eased = smoothstep(t);
+            const r = periodRadius + eased * 1.5;
+            reveal.style.clipPath = `circle(${r}% at ${lastPctX}% ${lastPctY}%)`;
+          } else if (p < 0.65) {
+            // Dot migrates from text position to center and grows
+            const t = Math.min(1, (p - 0.50) / 0.15);
             const eased = smoothstep(t);
             const x = lastPctX + (50 - lastPctX) * eased;
-            const y = lastPctY + (55 - lastPctY) * eased;
-            const r = 1.5 + eased * 5;
+            const y = lastPctY + (50 - lastPctY) * eased;
+            const r = (periodRadius + 1.5) + eased * 6;
             reveal.style.clipPath = `circle(${r}% at ${x}% ${y}%)`;
           } else {
-            // Full expansion
-            const t = Math.min(1, (p - 0.55) / 0.30);
+            // Full expansion from center
+            const t = Math.min(1, (p - 0.65) / 0.25);
             const eased = smoothstep(t);
-            const r = 6.5 + eased * 143.5;
-            reveal.style.clipPath = `circle(${r}% at 50% 55%)`;
+            const r = (periodRadius + 7.5) + eased * 142;
+            reveal.style.clipPath = `circle(${r}% at 50% 50%)`;
           }
 
           // ─── Canvas reparenting (before dot appears!) ───
@@ -153,7 +173,7 @@ const setup = (section: HTMLElement) => {
       textEl,
       {
         opacity: 0,
-        duration: 0.05,
+        duration: 0.08,
         ease: "power1.in",
       },
       0.40,
