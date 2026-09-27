@@ -152,7 +152,7 @@ const setup = (section: HTMLElement) => {
     // ─── Text scrolls along the curved path ───
     tl.fromTo(
       textPath,
-      { attr: { startOffset: "100%" } },
+      { attr: { startOffset: "75%" } },
       {
         attr: { startOffset: isMobile ? "-150%" : "-100%" },
         duration: 0.40,
