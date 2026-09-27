@@ -1,27 +1,26 @@
-import portfolio0 from "../../../assets/images/oldportfolio/image.png";
-import portfolio1 from "../../../assets/images/oldportfolio/image copy.png";
-import portfolio2 from "../../../assets/images/oldportfolio/image copy 2.png";
-import portfolio3 from "../../../assets/images/oldportfolio/image copy 3.png";
+import portfolio0 from "../../../assets/images/oldportfolio/image copy 4.png";
+import portfolio1 from "../../../assets/images/oldportfolio/image copy 5.png";
+import portfolio2 from "../../../assets/images/oldportfolio/image copy 6.png";
 
 import type { ProjectContent } from "../../types";
 
 export default {
   title: "Personal Portfolio",
   theme: "dark",
-  tags: ["vue", "tailwind", "gsap"],
+  tags: ["vue", "typescript", "gsap", "sass"],
   videoBorder: false,
-  live: "https://ameenmv.netlify.app/",
-  source: "https://github.com/ameenmv/portfolio",
+  live: "https://www.ameeen.me/",
+  source: "https://github.com/ameenmv/new_portfolio",
   description:
-    "Rebuilt my personal portfolio (v2) from scratch using Vue.js, Tailwind CSS, and GSAP.<br/><br/>Focused on improving usability, refining the design, and adding smooth animations for a more professional feel. A project that highlights my growth as a Frontend Developer and sets the stage for future iterations.",
+    "My personal portfolio (v3) — a fully immersive 3D experience built with Vue.js, Three.js, and GSAP. Features a custom 3D avatar in an interactive scene, scroll-driven animations with GSAP ScrollTrigger, a holographic about section with projected UI elements, and a cinematic contact reveal with SVG text path animation.<br/><br/>Designed and engineered every aspect from scratch: the 3D scene composition, the scroll-based camera transitions, the character rig interactions, and the responsive layout system with i18n support.",
   components: [
     {
       type: "media",
       props: {
         type: "image",
         src: portfolio0,
-        alt: "Portfolio Landing",
-        caption: "Landing Page",
+        alt: "Portfolio Hero — 3D Desk Scene",
+        caption: "Hero — Interactive 3D Desk Scene with Avatar",
       },
     },
     {
@@ -29,8 +28,8 @@ export default {
       props: {
         type: "image",
         src: portfolio1,
-        alt: "Portfolio Projects",
-        caption: "Projects Section",
+        alt: "Portfolio About — Holographic UI",
+        caption: "About — Holographic Avatar with Projected UI",
       },
     },
     {
@@ -38,17 +37,8 @@ export default {
       props: {
         type: "image",
         src: portfolio2,
-        alt: "Portfolio About",
-        caption: "About Section",
-      },
-    },
-    {
-      type: "media",
-      props: {
-        type: "image",
-        src: portfolio3,
-        alt: "Portfolio Contact",
-        caption: "Contact Section",
+        alt: "Portfolio Contact — Let's Work Together",
+        caption: "Contact — Cinematic Reveal with Social Links",
       },
     },
   ],

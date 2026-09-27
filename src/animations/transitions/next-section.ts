@@ -179,8 +179,11 @@ const setup = (section: HTMLElement) => {
         start: "top bottom",
         end: "bottom bottom",
         scrub: 1.5,
-        onUpdate: () => {
+        onUpdate: (self) => {
+          // Smoothed progress for visual effects (synced with text animation)
           const p = tl.progress();
+          // Raw scroll progress for critical state changes (immediate response)
+          const rawP = self.progress;
 
           // ─── Track the period (last char) position ───
           if (p >= 0.05 && p < 0.45) {
@@ -221,18 +224,18 @@ const setup = (section: HTMLElement) => {
             reveal.style.clipPath = `circle(${r}% at 50% 50%)`;
           }
 
-          // ─── Canvas reparenting ───
-          if (p >= 0.15 && !canvasInReveal) {
+          // ─── Canvas reparenting (uses RAW progress for immediate response) ───
+          if (rawP >= 0.15 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
-          } else if (p < 0.15 && canvasInReveal) {
+          } else if (rawP < 0.15 && canvasInReveal) {
             restoreCanvas();
           }
 
-          // ─── Avatar wake up ───
-          if (p >= 0.80 && !wakeUpCalled) {
+          // ─── Avatar wake up (uses RAW progress for immediate response) ───
+          if (rawP >= 0.80 && !wakeUpCalled) {
             avatarAnimations.wakeUp();
             wakeUpCalled = true;
-          } else if (p < 0.80) {
+          } else if (rawP < 0.80) {
             wakeUpCalled = false;
           }
         },
