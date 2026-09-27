@@ -47,7 +47,7 @@ const svgToContainerPct = (
   const svgRect = svgEl.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
   const screenX = svgRect.left + (svgX / 3900) * svgRect.width;
-  const screenY = svgRect.top + (svgY / 900) * svgRect.height;
+  const screenY = svgRect.top + ((svgY + 200) / 1300) * svgRect.height;
   return {
     x: ((screenX - containerRect.left) / containerRect.width) * 100,
     y: ((screenY - containerRect.top) / containerRect.height) * 100,

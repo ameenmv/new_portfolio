@@ -24,8 +24,8 @@ onUnmounted(() => {
       <svg
         class="next-section__svg"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 3900 900"
-        overflow="visible"
+        viewBox="0 -200 3900 1300"
+        overflow="hidden"
         aria-hidden="true"
       >
         <defs>
