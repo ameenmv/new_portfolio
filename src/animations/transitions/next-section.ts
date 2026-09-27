@@ -178,9 +178,9 @@ const setup = (section: HTMLElement) => {
         trigger: section,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const p = self.progress;
+        scrub: 1.5,
+        onUpdate: () => {
+          const p = tl.progress();
 
           // ─── Track the period (last char) position ───
           if (p >= 0.05 && p < 0.45) {
