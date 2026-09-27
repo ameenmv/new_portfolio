@@ -102,29 +102,22 @@ const setup = (section: HTMLElement) => {
           // The dot radius when it's acting as the period (visually matches the SVG period)
           const periodRadius = isMobile ? 1.2 : 0.9;
 
-          if (p < 0.50) {
+          if (p < 0.35) {
             // Period hasn't scrolled into view yet — no dot
             reveal.style.clipPath = "circle(0% at 50% 55%)";
-            if (dotChar) dotChar.style.opacity = "1";
-          } else if (p < 0.40) {
+          } else if (p < 0.45) {
             // Dot sits exactly on the period character, same size
             reveal.style.clipPath = `circle(${periodRadius}% at ${lastPctX}% ${lastPctY}%)`;
-            // Hide the SVG period so we don't see double
-            if (dotChar) {
-              // Only hide the actual period (last char) — we keep the rest of the gradient text visible
-              // We can't hide just one char easily, so we let both show — the dot overlaps the period
-              dotChar.style.opacity = "1";
-            }
-          } else if (p < 0.50) {
+          } else if (p < 0.55) {
             // Text is fading out, dot stays at last known position
             // Slight grow to make it feel alive
-            const t = (p - 0.40) / 0.10;
+            const t = (p - 0.45) / 0.10;
             const eased = smoothstep(t);
             const r = periodRadius + eased * 1.5;
             reveal.style.clipPath = `circle(${r}% at ${lastPctX}% ${lastPctY}%)`;
-          } else if (p < 0.65) {
+          } else if (p < 0.68) {
             // Dot migrates from text position to center and grows
-            const t = Math.min(1, (p - 0.50) / 0.15);
+            const t = Math.min(1, (p - 0.55) / 0.13);
             const eased = smoothstep(t);
             const x = lastPctX + (50 - lastPctX) * eased;
             const y = lastPctY + (50 - lastPctY) * eased;
@@ -132,7 +125,7 @@ const setup = (section: HTMLElement) => {
             reveal.style.clipPath = `circle(${r}% at ${x}% ${y}%)`;
           } else {
             // Full expansion from center
-            const t = Math.min(1, (p - 0.65) / 0.25);
+            const t = Math.min(1, (p - 0.68) / 0.25);
             const eased = smoothstep(t);
             const r = (periodRadius + 7.5) + eased * 142;
             reveal.style.clipPath = `circle(${r}% at 50% 50%)`;

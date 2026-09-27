@@ -29,7 +29,7 @@ onUnmounted(() => {
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id="nextTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="nextTextGrad" x1="0" y1="0" x2="6100" y2="0" gradientUnits="userSpaceOnUse">
             <stop offset="70%" stop-color="#f6c177" />
             <stop offset="82%" stop-color="#ff8400" />
             <stop offset="90%" stop-color="#e8825c" />
