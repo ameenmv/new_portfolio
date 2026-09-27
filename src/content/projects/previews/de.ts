@@ -35,6 +35,6 @@ export default [
     title: "Personal Portfolio",
     slug: "portfolio",
     thumbnail: thumbnailPortfolio,
-    description: "Portfolio v2 with GSAP Animations",
+    description: "Immersive 3D Portfolio with Three.js & GSAP",
   },
 ] as const satisfies ProjectPreview[];
