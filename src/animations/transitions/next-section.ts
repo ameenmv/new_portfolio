@@ -54,7 +54,7 @@ const svgToContainerPct = (
   };
 };
 
-// ─── Letter assembly helpers ───
+// ─── Letter assembly helpers (DESKTOP ONLY) ───
 interface CharInfo {
   el: SVGTSpanElement;
   yOffset: number;
@@ -64,7 +64,7 @@ interface CharInfo {
 }
 
 /**
- * Split textPath tspans into per-character tspans.
+ * Split textPath tspans into per-character tspans. (DESKTOP ONLY)
  * Group 0 (cream): chaotic random scatter (up/down + rotation)
  * Group 1 (gradient): elegant cascade from above (no rotation)
  */
@@ -164,16 +164,6 @@ const setup = (section: HTMLElement) => {
     return;
   }
 
-  // ─── Split text into per-character tspans (sets initial scatter) ───
-  const charInfos = splitTextIntoChars(textPath);
-
-  // Last known text-end position as container percentages
-  // ─── PERF: Cache the position so we don't call getEndPositionOfChar every frame ───
-  let lastPctX = 50;
-  let lastPctY = 50;
-  let positionCached = false; // once true, stop querying SVG DOM
-  let wakeUpCalled = false;
-
   // ─── PERF: Batch clip-path writes with rAF to avoid redundant style recalcs ───
   let pendingClipPath: string | null = null;
   let clipPathRafId: number | null = null;
@@ -194,20 +184,28 @@ const setup = (section: HTMLElement) => {
   };
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
+    // ─── PERF: On mobile, skip per-character splitting entirely ───
+    // SVG attribute animations (dy, rotate) force SVG re-layout every frame.
+    // On mobile this is the #1 bottleneck. Instead, keep the original 2 tspans
+    // and only animate startOffset + opacity (2 tweens vs 30+).
+    const charInfos = isMobile ? [] : splitTextIntoChars(textPath);
+
+    let lastPctX = 50;
+    let lastPctY = 50;
+    let positionCached = isMobile; // on mobile, skip SVG position queries entirely
+    let wakeUpCalled = false;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: isMobile ? 2.5 : 1.5, // smoother scrub on mobile to reduce frame pressure
+        scrub: isMobile ? 2.5 : 1.5,
         onUpdate: (self) => {
-          // Smoothed progress for visual effects (synced with text animation)
           const p = tl.progress();
-          // Raw scroll progress for critical state changes (immediate response)
           const rawP = self.progress;
 
-          // ─── Track the period (last char) position ───
-          // PERF: Only query SVG position until we get a valid one, then cache it
+          // ─── Track the period (last char) position (DESKTOP ONLY) ───
           if (!positionCached && p >= 0.05 && p < 0.45) {
             try {
               const nChars = textPath.getNumberOfChars();
@@ -216,7 +214,6 @@ const setup = (section: HTMLElement) => {
                 const pct = svgToContainerPct(svg, container, endPos.x, endPos.y);
                 lastPctX = pct.x;
                 lastPctY = pct.y;
-                // Cache once the text has mostly assembled (chars are near final position)
                 if (p >= 0.20) {
                   positionCached = true;
                 }
@@ -250,14 +247,14 @@ const setup = (section: HTMLElement) => {
             setClipPath(`circle(${r}% at 50% 50%)`);
           }
 
-          // ─── Canvas reparenting (uses RAW progress for immediate response) ───
+          // ─── Canvas reparenting ───
           if (rawP >= 0.15 && !canvasInReveal) {
             moveCanvasToReveal(reveal);
           } else if (rawP < 0.15 && canvasInReveal) {
             restoreCanvas();
           }
 
-          // ─── Avatar wake up (uses RAW progress for immediate response) ───
+          // ─── Avatar wake up ───
           if (rawP >= 0.80 && !wakeUpCalled) {
             avatarAnimations.wakeUp();
             wakeUpCalled = true;
@@ -268,43 +265,35 @@ const setup = (section: HTMLElement) => {
       },
     });
 
-    // ─── Letter assembly via GSAP ───
-    // All chars must use SAME timing (dy is cumulative in SVG textPath).
-    // Visual difference comes from scatter pattern, not timing:
-    //   Cream: chaotic scatter (random dy + rotation)
-    //   Gradient: elegant cascade from above (uniform dy + fade in, no rotation)
+    // ─── Letter assembly via GSAP (DESKTOP ONLY) ───
+    if (!isMobile) {
+      for (let i = 0; i < charInfos.length; i++) {
+        const char = charInfos[i];
+        if (!char) continue;
 
-    // PERF: On mobile, use coarser stagger to reduce total active tweens
-    const staggerScale = isMobile ? 0.03 : 0.06;
+        const staggerDelay = (i / charInfos.length) * 0.06;
 
-    for (let i = 0; i < charInfos.length; i++) {
-      const char = charInfos[i];
-      if (!char) continue;
-
-      const staggerDelay = (i / charInfos.length) * staggerScale;
-
-      if (char.group === 0) {
-        // Cream: dy + rotate → 0
-        tl.to(
-          char.el,
-          {
-            attr: { dy: 0, rotate: 0 },
-            duration: 0.18,
-            ease: "power3.out",
-          },
-          0.04 + staggerDelay,
-        );
-      } else {
-        // Gradient: dy → 0 + fade in (no rotate needed, it's already 0)
-        tl.to(
-          char.el,
-          {
-            attr: { dy: 0, opacity: 1 },
-            duration: 0.18,
-            ease: "power3.out",
-          },
-          0.04 + staggerDelay,
-        );
+        if (char.group === 0) {
+          tl.to(
+            char.el,
+            {
+              attr: { dy: 0, rotate: 0 },
+              duration: 0.18,
+              ease: "power3.out",
+            },
+            0.04 + staggerDelay,
+          );
+        } else {
+          tl.to(
+            char.el,
+            {
+              attr: { dy: 0, opacity: 1 },
+              duration: 0.18,
+              ease: "power3.out",
+            },
+            0.04 + staggerDelay,
+          );
+        }
       }
     }
 
