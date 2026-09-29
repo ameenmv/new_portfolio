@@ -56,6 +56,7 @@ const getAriaLabel = (name: string) => `${t("go-to")} ${name.charAt(0).toUpperCa
 <style scoped lang="scss">
 .social {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-md);
 }
 </style>

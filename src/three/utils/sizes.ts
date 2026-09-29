@@ -20,7 +20,11 @@ class ThreeSizes extends EventEmitter<{
     if (!rect || !rect.width || !rect.height) return;
     this.width = rect?.width ?? 0;
     this.height = rect?.height ?? 0;
-    this.pixelRatio = Math.min(window.devicePixelRatio, 2);
+    const isTouchDevice =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    this.pixelRatio = Math.min(window.devicePixelRatio, isTouchDevice ? 1.5 : 2);
     this.emit("resize", { width: this.width, height: this.height, pixelRatio: this.pixelRatio });
   }
 

@@ -168,9 +168,30 @@ const setup = (section: HTMLElement) => {
   const charInfos = splitTextIntoChars(textPath);
 
   // Last known text-end position as container percentages
+  // ─── PERF: Cache the position so we don't call getEndPositionOfChar every frame ───
   let lastPctX = 50;
   let lastPctY = 50;
+  let positionCached = false; // once true, stop querying SVG DOM
   let wakeUpCalled = false;
+
+  // ─── PERF: Batch clip-path writes with rAF to avoid redundant style recalcs ───
+  let pendingClipPath: string | null = null;
+  let clipPathRafId: number | null = null;
+
+  const flushClipPath = () => {
+    if (pendingClipPath !== null) {
+      reveal.style.clipPath = pendingClipPath;
+      pendingClipPath = null;
+    }
+    clipPathRafId = null;
+  };
+
+  const setClipPath = (value: string) => {
+    pendingClipPath = value;
+    if (clipPathRafId === null) {
+      clipPathRafId = requestAnimationFrame(flushClipPath);
+    }
+  };
 
   scrollMm = createMatchMedia((_context, { isMobile }) => {
     const tl = gsap.timeline({
@@ -178,7 +199,7 @@ const setup = (section: HTMLElement) => {
         trigger: section,
         start: "top bottom",
         end: "bottom bottom",
-        scrub: 1.5,
+        scrub: isMobile ? 2.5 : 1.5, // smoother scrub on mobile to reduce frame pressure
         onUpdate: (self) => {
           // Smoothed progress for visual effects (synced with text animation)
           const p = tl.progress();
@@ -186,7 +207,8 @@ const setup = (section: HTMLElement) => {
           const rawP = self.progress;
 
           // ─── Track the period (last char) position ───
-          if (p >= 0.05 && p < 0.45) {
+          // PERF: Only query SVG position until we get a valid one, then cache it
+          if (!positionCached && p >= 0.05 && p < 0.45) {
             try {
               const nChars = textPath.getNumberOfChars();
               if (nChars > 0) {
@@ -194,6 +216,10 @@ const setup = (section: HTMLElement) => {
                 const pct = svgToContainerPct(svg, container, endPos.x, endPos.y);
                 lastPctX = pct.x;
                 lastPctY = pct.y;
+                // Cache once the text has mostly assembled (chars are near final position)
+                if (p >= 0.20) {
+                  positionCached = true;
+                }
               }
             } catch { /* skip */ }
           }
@@ -202,26 +228,26 @@ const setup = (section: HTMLElement) => {
           const periodRadius = isMobile ? 1.2 : 0.9;
 
           if (p < 0.35) {
-            reveal.style.clipPath = "circle(0% at 50% 55%)";
+            setClipPath("circle(0% at 50% 55%)");
           } else if (p < 0.45) {
-            reveal.style.clipPath = `circle(${periodRadius}% at ${lastPctX}% ${lastPctY}%)`;
+            setClipPath(`circle(${periodRadius}% at ${lastPctX}% ${lastPctY}%)`);
           } else if (p < 0.55) {
             const t = (p - 0.45) / 0.10;
             const eased = smoothstep(t);
             const r = periodRadius + eased * 1.5;
-            reveal.style.clipPath = `circle(${r}% at ${lastPctX}% ${lastPctY}%)`;
+            setClipPath(`circle(${r}% at ${lastPctX}% ${lastPctY}%)`);
           } else if (p < 0.68) {
             const t = Math.min(1, (p - 0.55) / 0.13);
             const eased = smoothstep(t);
             const x = lastPctX + (50 - lastPctX) * eased;
             const y = lastPctY + (50 - lastPctY) * eased;
             const r = (periodRadius + 1.5) + eased * 6;
-            reveal.style.clipPath = `circle(${r}% at ${x}% ${y}%)`;
+            setClipPath(`circle(${r}% at ${x}% ${y}%)`);
           } else {
             const t = Math.min(1, (p - 0.68) / 0.25);
             const eased = smoothstep(t);
             const r = (periodRadius + 7.5) + eased * 142;
-            reveal.style.clipPath = `circle(${r}% at 50% 50%)`;
+            setClipPath(`circle(${r}% at 50% 50%)`);
           }
 
           // ─── Canvas reparenting (uses RAW progress for immediate response) ───
@@ -247,11 +273,15 @@ const setup = (section: HTMLElement) => {
     // Visual difference comes from scatter pattern, not timing:
     //   Cream: chaotic scatter (random dy + rotation)
     //   Gradient: elegant cascade from above (uniform dy + fade in, no rotation)
+
+    // PERF: On mobile, use coarser stagger to reduce total active tweens
+    const staggerScale = isMobile ? 0.03 : 0.06;
+
     for (let i = 0; i < charInfos.length; i++) {
       const char = charInfos[i];
       if (!char) continue;
 
-      const staggerDelay = (i / charInfos.length) * 0.06;
+      const staggerDelay = (i / charInfos.length) * staggerScale;
 
       if (char.group === 0) {
         // Cream: dy + rotate → 0
@@ -327,3 +357,4 @@ const destroy = () => {
 };
 
 export const nextSection = { setup, destroy };
+

@@ -72,9 +72,13 @@ onUnmounted(() => {
 .next-section {
   position: relative;
   width: 100%;
-  height: 500vh;
+  height: 350vh; // PERF: shorter scroll on mobile = fewer animation frames
   background: var(--color-black-400);
   z-index: 1;
+
+  @include mixins.mq("md") {
+    height: 500vh;
+  }
 
   &__container {
     position: sticky;
@@ -85,6 +89,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    contain: layout style paint; // PERF: enable browser containment optimizations
   }
 
   &__svg {
@@ -115,6 +120,7 @@ onUnmounted(() => {
     clip-path: circle(0% at 50% 55%);
     z-index: 2;
     will-change: clip-path;
+    transform: translateZ(0); // PERF: promote to own compositing layer
   }
 
   &__reveal-content {
