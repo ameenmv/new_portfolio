@@ -95,15 +95,15 @@ onUnmounted(() => {
   &__svg {
     max-inline-size: none !important;
     block-size: auto !important;
-    width: 400vw;
-    min-width: 400vw;
+    width: 250vw; // PERF: smaller SVG on mobile = cheaper re-layout during startOffset animation
+    min-width: 250vw;
     height: auto;
     pointer-events: none;
     user-select: none;
 
     @include mixins.mq("md") {
-      width: 350vw;
-      min-width: 350vw;
+      width: 400vw;
+      min-width: 400vw;
     }
 
     @include mixins.mq("xl") {
