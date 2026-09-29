@@ -206,6 +206,8 @@ const setup = (section: HTMLElement) => {
           const rawP = self.progress;
 
           // ─── Track the period (last char) position (DESKTOP ONLY) ───
+          // On mobile: positionCached=true from init, so this block is skipped entirely.
+          // On desktop: track continuously so the circle reveal follows the period as it scrolls.
           if (!positionCached && p >= 0.05 && p < 0.45) {
             try {
               const nChars = textPath.getNumberOfChars();
@@ -214,9 +216,6 @@ const setup = (section: HTMLElement) => {
                 const pct = svgToContainerPct(svg, container, endPos.x, endPos.y);
                 lastPctX = pct.x;
                 lastPctY = pct.y;
-                if (p >= 0.20) {
-                  positionCached = true;
-                }
               }
             } catch { /* skip */ }
           }

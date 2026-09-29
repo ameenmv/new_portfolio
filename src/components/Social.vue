@@ -58,5 +58,17 @@ const getAriaLabel = (name: string) => `${t("go-to")} ${name.charAt(0).toUpperCa
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-md);
+
+  &-link {
+    flex-shrink: 0; // prevent icons from collapsing to 0 width
+    display: flex;
+
+    // Ensure SVG icons always have dimensions even before CSS fully loads
+    :deep(svg) {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
 }
 </style>
