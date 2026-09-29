@@ -9,6 +9,10 @@ import type { SceneKey } from "./types";
 const position = new Vector3();
 const focus = new Vector3();
 
+// ─── PERF: Track previous weights to avoid rebuilding arrays every frame ───
+let prevWeightsSnapshot = "";
+let prevIsLandscape: boolean | null = null;
+
 const init = () => {
   updateReferences();
   gsap.ticker.add(tick);
@@ -55,7 +59,38 @@ function updateReferences() {
 }
 
 const tick = () => {
-  updateReferences();
+  // ─── PERF: Only rebuild arrays when weights or orientation actually changed ───
+  const currentIsLandscape = sizes.isLandscape;
+
+  // Build a cheap snapshot of current weights to detect changes
+  let weightsChanged = currentIsLandscape !== prevIsLandscape;
+  if (!weightsChanged) {
+    // Quick check: serialize weights to a string and compare
+    let snapshot = "";
+    for (const key of Object.keys(sceneWeights)) {
+      const w = sceneWeights[key as keyof typeof sceneWeights];
+      if (w > 0) {
+        snapshot += key + ":" + (w * 1000 | 0) + ",";
+      }
+    }
+    weightsChanged = snapshot !== prevWeightsSnapshot;
+    if (weightsChanged) prevWeightsSnapshot = snapshot;
+  } else {
+    prevIsLandscape = currentIsLandscape;
+    // Force snapshot update
+    let snapshot = "";
+    for (const key of Object.keys(sceneWeights)) {
+      const w = sceneWeights[key as keyof typeof sceneWeights];
+      if (w > 0) {
+        snapshot += key + ":" + (w * 1000 | 0) + ",";
+      }
+    }
+    prevWeightsSnapshot = snapshot;
+  }
+
+  if (weightsChanged) {
+    updateReferences();
+  }
 
   const finalPos = weightedAverage(positions, weights);
   const finalFocus = weightedAverage(focuses, weights);
@@ -66,6 +101,9 @@ const tick = () => {
 
 const destroy = () => {
   gsap.ticker.remove(tick);
+  prevWeightsSnapshot = "";
+  prevIsLandscape = null;
 };
 
 export const waypoints = { init, points, updateReferences, position, focus, destroy };
+
