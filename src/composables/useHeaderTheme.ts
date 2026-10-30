@@ -8,6 +8,7 @@ export const useHeaderTheme = ({
   onUpdate?: (element: HTMLElement | null, boundingClientRect: DOMRect | null, hasScrolledIntoView: boolean) => void;
 } = {}) => {
   let aboutElement: HTMLElement | null = null;
+  let processElement: HTMLElement | null = null;
   const isDarkTheme = ref(false);
   const hasScrolledIntoView = ref(false);
 
@@ -16,14 +17,22 @@ export const useHeaderTheme = ({
       aboutElement = typeof window !== "undefined" ? document.querySelector("#about") : null;
     }
 
+    if (!processElement) {
+      processElement = typeof window !== "undefined" ? document.querySelector("#process") : null;
+    }
+
     if (aboutElement) {
       const aboutBounding = aboutElement.getBoundingClientRect();
       const isLandscape = sizes.isLandscape;
       const isScrolledIntoView = aboutBounding.top - (isLandscape ? sizes.height * 0.225 : 0) < 0;
       const isScrolledPast = aboutBounding.bottom - 36 < 0;
 
+      // the Process section has a dark background too
+      const processBounding = processElement?.getBoundingClientRect();
+      const isOverProcess = !!processBounding && processBounding.top < 36 && processBounding.bottom > 36;
+
       hasScrolledIntoView.value = isScrolledIntoView;
-      isDarkTheme.value = isScrolledIntoView && !isScrolledPast;
+      isDarkTheme.value = (isScrolledIntoView && !isScrolledPast) || isOverProcess;
 
       if (typeof onUpdate === "function") {
         onUpdate(aboutElement, aboutBounding, isScrolledIntoView);
