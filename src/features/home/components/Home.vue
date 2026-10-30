@@ -4,6 +4,7 @@ import Hero from "./Hero.vue";
 import About from "./About.vue";
 //import AboutSections from "../features/about/Sections.vue";
 import Projects from "./Projects.vue";
+import Process from "./Process.vue";
 import NextSection from "./NextSection.vue";
 import Footer from "../../../components/Footer.vue";
 import { ref, onMounted, onUnmounted, watchEffect, computed, watch } from "vue";
@@ -157,6 +158,7 @@ watch(
         <div class="intro-wrapper-spacer"></div>
         <div class="about-spacer" ref="aboutSpacerRef" id="about"></div>
       </div>
+      <Process />
       <Projects id="projects" @loaded="handleProjectsLoaded" />
       <NextSection id="contact" v-if="projectsLoaded" />
       <Footer :withSocial="false"></Footer>

@@ -28,5 +28,21 @@
   "version": "Version",
   "view-project": "View project",
   "next-text-cream": "If our visions align, ",
-  "next-text-gradient": "let's shape what's next together."
+  "next-text-gradient": "let's shape what's next together.",
+  "process": "Process",
+  "process-banner": "How I work",
+  "process-intro": "From a spark of an idea to a product in production. Four phases, zero guesswork.",
+  "process-scroll": "Scroll to explore",
+  "process-1-title": "Discover",
+  "process-1-description": "I dig into your goals, your users and the problem behind the problem. Clear questions now save weeks later.",
+  "process-1-tags": "Research|User goals|Scope",
+  "process-2-title": "Design",
+  "process-2-description": "Wireframes and interaction concepts that turn requirements into a clear, intuitive flow before a single line of code.",
+  "process-2-tags": "Wireframes|UX flows|Prototypes",
+  "process-3-title": "Develop",
+  "process-3-description": "Clean, typed and tested Vue & Nuxt code. Fast, accessible components built to scale with your product.",
+  "process-3-tags": "Vue & Nuxt|TypeScript|Performance",
+  "process-4-title": "Deliver",
+  "process-4-description": "Deployment, monitoring and fine-tuning. I ship, measure and keep improving long after launch.",
+  "process-4-tags": "Launch|Optimization|Support"
 }
