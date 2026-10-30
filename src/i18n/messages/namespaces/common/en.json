@@ -27,8 +27,6 @@
   "switch-to-project": "Switch to project {project}",
   "version": "Version",
   "view-project": "View project",
-  "next-text-cream": "If our visions align, ",
-  "next-text-gradient": "let's shape what's next together.",
   "process": "Process",
   "process-banner": "How I work",
   "process-intro": "From a spark of an idea to a product in production. Four phases, zero guesswork.",
@@ -44,5 +42,18 @@
   "process-3-tags": "Vue & Nuxt|TypeScript|Performance",
   "process-4-title": "Deliver",
   "process-4-description": "Deployment, monitoring and fine-tuning. I ship, measure and keep improving long after launch.",
-  "process-4-tags": "Launch|Optimization|Support"
+  "process-4-tags": "Launch|Optimization|Support",
+  "paper-word-write": "WRITE.",
+  "paper-word-fold": "FOLD.",
+  "paper-word-send": "SEND.",
+  "paper-hint": "Scroll to fold & send",
+  "paper-delivered": "Delivered",
+  "letter-to": "To: you",
+  "letter-title": "Got an idea|that won't leave|you alone?",
+  "letter-body": "I craft fast, beautiful web experiences with Vue, Nuxt & Three.js. Fold this letter into a plane, send it my way, and let's make it real.",
+  "letter-signature": "— Ameen",
+  "letter-stamp": "Air mail",
+  "projects-note": "// things I built & shipped",
+  "projects-new-copy": "Your idea could be next",
+  "projects-drag-hint": "psst… drag them around ✋"
 }
