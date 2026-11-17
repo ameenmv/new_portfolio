@@ -83,13 +83,13 @@ onUnmounted(() => {
       <!-- Contact layer: revealed once the unfolded letter covers the screen -->
       <div class="next-section__reveal">
         <div class="next-section__reveal-content">
-          <Contact no-transition />
-
-          <div class="next-section__stamp" aria-hidden="true">
-            <span class="next-section__stamp-title">{{ t("paper-delivered") }}</span>
-            <span class="next-section__stamp-date">{{ deliveredDate }}</span>
-            <span class="next-section__stamp-foot">MV · {{ t("letter-stamp") }}</span>
-          </div>
+          <Contact no-transition>
+            <div class="next-section__stamp" aria-hidden="true">
+              <span class="next-section__stamp-title">{{ t("paper-delivered") }}</span>
+              <span class="next-section__stamp-date">{{ deliveredDate }}</span>
+              <span class="next-section__stamp-foot">MV · {{ t("letter-stamp") }}</span>
+            </div>
+          </Contact>
         </div>
       </div>
 
@@ -216,14 +216,21 @@ $ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   // ─── "Delivered" rubber stamp ───
   &__stamp {
     position: absolute;
-    // phones: beside the short second row of socials, clear of the title and the avatar
-    right: var(--space-outer);
-    top: calc(var(--space-outer) + 168px);
+    // phones: the socials wrap, so the stamp sits beside their short second row,
+    // clear of the title and the avatar
+    right: 0;
+    bottom: -22px; // the tilt lifts its right corner; keep it off the first row
+
+    @include mixins.mq("sm") {
+      // one row of socials: stamp just below it
+      top: calc(100% + var(--space-sm));
+      bottom: auto;
+    }
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding: 8px 12px 6px;
+    padding: 6px 10px 5px;
     border: 3px solid var(--color-orange-400);
     border-radius: 10px;
     box-shadow:
@@ -240,13 +247,14 @@ $ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
     @include mixins.mq("md") {
       top: calc(var(--height-header) + var(--space-xxl));
+      bottom: auto;
       right: 8vw;
       padding: 14px 26px 12px;
     }
 
     &-title {
       font-weight: 900;
-      font-size: 18px;
+      font-size: 15px;
       letter-spacing: 0.12em;
       line-height: 1;
 
