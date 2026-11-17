@@ -201,6 +201,21 @@ const classes = computed(() => ["tag", `tag-variant-${props.variant}`]);
       background-color: #95630e;
       color: white;
     }
+
+    &-prisma {
+      background-color: #2d3748;
+      color: white;
+    }
+
+    &-docker {
+      background-color: #1d63ed;
+      color: white;
+    }
+
+    &-shadcn {
+      background-color: #18181b;
+      color: white;
+    }
   }
 }
 </style>

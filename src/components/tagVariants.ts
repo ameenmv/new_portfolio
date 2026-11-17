@@ -26,7 +26,11 @@ export type TagVariant =
   | "i18n"
   | "pusher"
   | "sass"
-  | "nuxtui";
+  | "nuxtui"
+  | "postgresql"
+  | "prisma"
+  | "docker"
+  | "shadcn";
 
 export const tagLabels = {
   vue: "Vue.js",
@@ -57,4 +61,8 @@ export const tagLabels = {
   pusher: "Pusher",
   sass: "SASS",
   nuxtui: "NuxtUI",
+  postgresql: "PostgreSQL",
+  prisma: "Prisma",
+  docker: "Docker",
+  shadcn: "shadcn-vue",
 } as const satisfies Record<TagVariant, string>;

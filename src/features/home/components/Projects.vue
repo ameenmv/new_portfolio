@@ -350,14 +350,14 @@ $ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   left: 0;
   top: 0;
   z-index: 10;
-  width: clamp(140px, 42vw, 200px);
+  width: clamp(124px, 37vw, 190px);
   visibility: hidden; // shown by the wall once its toss starts
   will-change: transform;
   touch-action: pan-y;
   user-select: none;
 
   @include mixins.mq("md") {
-    width: clamp(180px, 20vw, 310px);
+    width: clamp(170px, 18vw, 285px);
   }
 
   @include mixins.hover {
