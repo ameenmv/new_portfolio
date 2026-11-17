@@ -3,6 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { createMatchMedia } from "../utils/matchMedia";
 import { processScene, processState } from "../../three/process";
 import { lenis } from "../../composables/useScroll";
+import { coverMainCanvas } from "../utils/coverMainCanvas";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,6 +46,7 @@ const setup = (section: HTMLElement, { onStep, onProgress }: Callbacks) => {
       end: "bottom top",
       onToggle: (self) => processScene.setActive(self.isActive),
     });
+    const cover = coverMainCanvas(section, "process");
 
     // ─── Enter: the scattered cloud gathers into a galaxy ───
     gsap.fromTo(
@@ -109,6 +111,7 @@ const setup = (section: HTMLElement, { onStep, onProgress }: Callbacks) => {
 
     return () => {
       mainTrigger = null;
+      cover.kill();
       processScene.setActive(false);
     };
   });

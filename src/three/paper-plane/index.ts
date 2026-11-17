@@ -323,6 +323,24 @@ const init = (_canvas: HTMLCanvasElement) => {
   gsap.ticker.add(tick);
 };
 
+// PERF: compile the shaders and upload the letter while the page is idle,
+// so the first frame on screen doesn't stall the scroll on phones
+let warmUpHandle = 0;
+const warmUp = () => {
+  const run = () => {
+    warmUpHandle = 0;
+    if (!renderer || !scene || !camera || !letterTexture) return;
+    renderer.compile(scene, camera);
+    renderer.initTexture(letterTexture);
+  };
+  if (warmUpHandle) return;
+  // Safari has no requestIdleCallback
+  warmUpHandle =
+    typeof window.requestIdleCallback === "function"
+      ? window.requestIdleCallback(run, { timeout: 2000 })
+      : globalThis.setTimeout(run, 300);
+};
+
 /** Redraws the letter, e.g. after a language switch. */
 const setLetter = async (copy: LetterCopy) => {
   try {
@@ -333,6 +351,7 @@ const setLetter = async (copy: LetterCopy) => {
   if (!letterTexture) return;
   drawLetter(letterTexture.image as HTMLCanvasElement, copy);
   letterTexture.needsUpdate = true;
+  warmUp();
 };
 
 const setActive = (value: boolean) => {

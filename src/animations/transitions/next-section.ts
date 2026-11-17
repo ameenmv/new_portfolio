@@ -3,6 +3,8 @@ import { createMatchMedia } from "../utils/matchMedia";
 import { sceneWeightsInOut } from "../scenes";
 import { animations as avatarAnimations } from "../../three/objects/avatar/animations";
 import { PAPER_PHASES, paperPlane, paperState } from "../../three/paper-plane";
+import { renderer } from "../../three/core/renderer";
+import { threeSizes } from "../../three/utils/sizes";
 
 let scrollMm: gsap.MatchMedia | null = null;
 let canvasOriginalParent: HTMLElement | null = null;
@@ -10,6 +12,15 @@ let canvasOriginalNextSibling: Node | null = null;
 let canvasInReveal = false;
 
 export type PaperStage = "write" | "fold" | "send" | "arrive";
+
+// the contact layer stays clipped until the handoff; start drawing it again just before
+const MAIN_RESUME_AT = PAPER_PHASES.handoff - 0.03;
+
+// PERF: while the clipped contact layer holds the main canvas, nothing of it is on screen.
+// Skipping that full-screen render halves the GPU work on phones during the paper story.
+const syncMainRenderer = () => {
+  renderer.setSuspended("paper", canvasInReveal && paperState.progress < MAIN_RESUME_AT);
+};
 
 const moveCanvasToReveal = (reveal: Element) => {
   const canvas = document.querySelector(".three-canvas") as HTMLElement;
@@ -20,8 +31,10 @@ const moveCanvasToReveal = (reveal: Element) => {
 
   reveal.insertBefore(canvas, reveal.firstChild);
   canvas.classList.add("three-canvas-in-reveal");
-  window.dispatchEvent(new Event("resize"));
+  // only the 3D canvas needs to re-measure; a global resize event would make every listener recalculate mid-scroll
+  threeSizes.resize();
   canvasInReveal = true;
+  syncMainRenderer();
 };
 
 const restoreCanvas = () => {
@@ -36,6 +49,7 @@ const restoreCanvas = () => {
 
   canvas.classList.remove("three-canvas-in-reveal");
   canvasInReveal = false;
+  syncMainRenderer();
 };
 
 const stageAt = (p: number): PaperStage =>
@@ -97,6 +111,7 @@ const setup = (section: HTMLElement, { onStage, onDelivered }: Callbacks) => {
         // runs while scrub catches up too, not only while scrolling
         onUpdate: () => {
           const p = paperState.progress;
+          syncMainRenderer();
 
           const next = stageAt(p);
           if (next !== stage) {
@@ -146,6 +161,7 @@ const setup = (section: HTMLElement, { onStage, onDelivered }: Callbacks) => {
 
     return () => {
       paperPlane.setActive(false);
+      renderer.setSuspended("paper", false);
       reveal.style.clipPath = "";
       paperCanvas.style.visibility = "";
     };
@@ -154,6 +170,7 @@ const setup = (section: HTMLElement, { onStage, onDelivered }: Callbacks) => {
 
 const destroy = () => {
   restoreCanvas();
+  renderer.setSuspended("paper", false);
   sceneWeightsInOut.contact.in = 0;
   sceneWeightsInOut.contact.out = 0;
   paperState.enter = 0;

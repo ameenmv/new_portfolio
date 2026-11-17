@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { BREAKPOINTS } from "../../utils/sizes";
+import { coverMainCanvas } from "../utils/coverMainCanvas";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -418,6 +419,8 @@ export const createProjectsWall = ({ section, board, strings, cards: cardEls, on
     },
   );
 
+  const cover = coverMainCanvas(section, "projects");
+
   active = visibility.isActive;
   gsap.ticker.add(tick);
 
@@ -425,6 +428,7 @@ export const createProjectsWall = ({ section, board, strings, cards: cardEls, on
     gsap.ticker.remove(tick);
     resizeObserver.disconnect();
     visibility.kill();
+    cover.kill();
     tween.scrollTrigger?.kill();
     tween.kill();
     cards.forEach((c) => c.cleanup());

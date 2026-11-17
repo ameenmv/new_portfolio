@@ -27,7 +27,10 @@ onUnmounted(() => {
   <div class="contact grid" ref="contactElement">
     <div class="contact-content">
       <h2 class="contact-title" v-html="t('lets-work-together')"></h2>
-      <Social variant="background" />
+      <div class="contact-social">
+        <Social variant="background" />
+        <slot />
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +61,7 @@ onUnmounted(() => {
     }
 
     @include mixins.mq("md") {
+      position: static;
       gap: var(--space-xl);
       grid-column: 1 / 6;
       padding-top: var(--space-lg);
@@ -65,6 +69,16 @@ onUnmounted(() => {
 
     @include mixins.mq("lg") {
       grid-column: 2 / 6;
+    }
+  }
+
+  // slot content (the "delivered" stamp) is placed against the socials on phones
+  // and against the whole layer on wide screens
+  &-social {
+    position: relative;
+
+    @include mixins.mq("md") {
+      position: static;
     }
   }
 

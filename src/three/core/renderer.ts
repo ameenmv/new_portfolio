@@ -13,6 +13,8 @@ let instance: WebGLRenderer | null = null;
 let canvas: HTMLCanvasElement | null = null;
 let visible = true;
 let isActive = false;
+// reasons why another layer fully hides this canvas right now; while any is set the GPU skips it
+const suspendedBy = new Set<string>();
 
 const emptyVector = new Vector3();
 
@@ -49,7 +51,7 @@ const tick = () => {
     visible = shouldBeVisible;
   }
 
-  if (!instance || !shouldBeVisible) return;
+  if (!instance || !shouldBeVisible || suspendedBy.size > 0) return;
 
   if (sceneWeights.about > 0.001) {
     renderTarget.render();
@@ -66,6 +68,11 @@ const compile = async () => {
 
 const setIsActive = (value: boolean) => {
   isActive = value;
+};
+
+const setSuspended = (reason: string, value: boolean) => {
+  if (value) suspendedBy.add(reason);
+  else suspendedBy.delete(reason);
 };
 
 const compileScene = async (camera: Camera, sceneToCompile: Scene) => {
@@ -115,4 +122,4 @@ const destroy = () => {
   visible = true;
 };
 
-export const renderer = { init, destroy, getInstance, compile, setIsActive };
+export const renderer = { init, destroy, getInstance, compile, setIsActive, setSuspended };
