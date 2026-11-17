@@ -25,7 +25,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.ameeen.me/project/nabeeh</loc>
+    <loc>https://www.ameeen.me/project/serag</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.ameeen.me/project/masra</loc>
     <lastmod>2026-09-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
