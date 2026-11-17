@@ -8,11 +8,11 @@ import type { ProjectContent } from "../../types";
 export default {
   title: "SAAF",
   theme: "dark",
-  tags: ["vue", "pinia", "i18n", "chartjs", "bootstrap", "sass", "pusher", "axios"],
+  tags: ["vue", "nuxt", "pinia", "tailwind", "i18n", "chartjs", "pusher", "axios"],
   videoBorder: false,
   live: "https://saaf.com.sa",
   description:
-    "SAAF is an enterprise fintech ecosystem for real estate & equity investment, fully compliant with Saudi CMA regulations. The Superadmin Dashboard alone spans 879 views, 1,009 reusable components, 774 composables, and 128 API modules across 96+ feature modules — including Investor Management, Fund Management, Wallets, KYC/AML Compliance, Sukuk, Stocks, DPM, and Real Estate.<br/><br/>Engineered a granular two-tier RBAC system securing complex routing and element-level rendering for sensitive financial operations. Built real-time reactivity with Pusher/Laravel Echo WebSockets for live order tracking and wallet updates. Designed interactive analytics dashboards with Chart.js for investor stats, asset allocation, and fund performance. Full bilingual i18n with RTL/LTR support across every module.",
+    "SAAF is an enterprise fintech ecosystem for real estate and equity investment, regulated by the Saudi Capital Market Authority (CMA). I was the lead frontend engineer on all three of its frontends: the Superadmin dashboard, the investor web app and the marketing site.<br/><br/>The Superadmin dashboard (Vue 3) spans 950+ views and 1,000+ reusable components across 100+ modules, including funds, sukuk, stocks, wallets, KYC / AML compliance, accounting and real estate. It has a two-tier RBAC system that guards routes and individual UI elements, and Chart.js / ApexCharts analytics for investors, asset allocation and fund performance.<br/><br/>The investor web app (Nuxt 4) lets people invest in funds and markets, manage several wallets with deposits, transfers, withdrawals and transaction history, and complete the full KYC onboarding, with live ticket chat and notifications over Pusher and guided product tours. A WebSocket layer (Pusher / Laravel Echo) replaced HTTP polling, so orders and wallets update in under a second. The Nuxt marketing site ships with full SSR and near-perfect Core Web Vitals, and everything works in Arabic and English (RTL / LTR).",
   components: [
     {
       type: "media",
