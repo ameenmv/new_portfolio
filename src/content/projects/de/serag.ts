@@ -14,8 +14,9 @@ export default {
   theme: "dark",
   tags: ["nuxt", "vue", "nestjs", "postgresql", "prisma", "tailwind", "shadcn", "zod", "three", "gsap", "docker"],
   videoBorder: false,
+  live: "https://mserag.com/",
   description:
-    "An Arabic-first online store and admin dashboard for Mohamed Serag, a family-run home-appliance showroom in Mansoura since 1972. I built it solo, end to end: a Turborepo monorepo with a Nuxt 4 SSR storefront, a NestJS API on PostgreSQL / Prisma, and Zod schemas shared by both. 280+ commits, 28 specced features and 860+ automated tests.<br/><br/>Checkout follows how Egyptians actually buy: guest checkout, cash on delivery, InstaPay and Vodafone Cash. The customer transfers only the shipping fee (or a deposit) up front, and the owner confirms it with one tap from a signed link sent over WhatsApp. Search understands Arabic spelling variants and Arabic-Indic digits, the home page tells a 3D product story with Three.js and GSAP, and the admin side covers orders, payments, stock, a site editor with drafts and version history, and reports. Launching soon.",
+    "An Arabic-first online store and admin dashboard for Mohamed Serag, a family-run home-appliance showroom in Mansoura since 1972. I built it solo, end to end: a Turborepo monorepo with a Nuxt 4 SSR storefront, a NestJS API on PostgreSQL / Prisma, and Zod schemas shared by both. 280+ commits, 28 specced features and 860+ automated tests.<br/><br/>Checkout follows how Egyptians actually buy: guest checkout, cash on delivery, InstaPay and Vodafone Cash. The customer transfers only the shipping fee (or a deposit) up front, and the owner confirms it with one tap from a signed link sent over WhatsApp. Search understands Arabic spelling variants and Arabic-Indic digits, the home page tells a 3D product story with Three.js and GSAP, and the admin side covers orders, payments, stock, a site editor with drafts and version history, and reports. Live at mserag.com.",
   components: [
     {
       type: "media",
